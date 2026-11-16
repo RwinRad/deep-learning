@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "disaster-tweet-classifier"
+version = "1.0.0"
+description = "A reproducible NLP project comparing TF-IDF and a PyTorch TextCNN for disaster-tweet classification."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Project implementation by the repository maintainer"}]
+dependencies = [
+  "numpy>=1.26,<3",
+  "pandas>=2.0,<3",
+  "scikit-learn>=1.4,<2",
+  "torch>=2.2,<3",
+  "matplotlib>=3.8,<4",
+  "joblib>=1.3,<2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "jupyter>=1.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
