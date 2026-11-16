@@ -141,10 +141,6 @@ Open `notebooks/01_exploratory_analysis.ipynb` to inspect class balance, text le
 pytest -q
 ```
 
-## Learning reference and attribution
-
-The task and learning progression were inspired by the NLP material in [aaghamohammadi/deep-learning-youtube](https://github.com/aaghamohammadi/deep-learning-youtube), especially its tokenization, embedding, and NLP project notebooks (`041`–`043`). This repository is an independent implementation: the model code, experiment structure, command-line interface, tests, and documentation are separate work.
-
 ## Licence
 
 The project code is released under the MIT License in `LICENSE`. The Kaggle dataset is not included and remains subject to its own source terms.
