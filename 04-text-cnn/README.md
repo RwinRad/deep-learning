@@ -1,42 +1,39 @@
 # Disaster Tweet Classification
 
-An end-to-end NLP project that predicts whether a tweet refers to a real disaster. It compares a classical machine-learning baseline with a compact deep-learning model and keeps the validation process reproducible.
+An end-to-end NLP project that predicts whether a tweet refers to a real disaster. It compares a classical machine-learning baseline with a compact deep-learning model using a reproducible validation workflow.
 
-> **Task:** binary text classification (`0` = not disaster-related, `1` = disaster-related)
->
+> **Task:** binary text classification (`0` = not disaster-related, `1` = disaster-related)  
 > **Dataset:** [Natural Language Processing with Disaster Tweets — Kaggle](https://www.kaggle.com/competitions/nlp-getting-started)
 
-## Why this project?
+## Models
 
-Short social-media messages are noisy: they contain hashtags, URLs, mentions, abbreviations, and ambiguous language. A word such as *ablaze* can be literal or figurative, so recognizing context matters.
-
-This repository evaluates two approaches on the same stratified validation split:
-
-1. **TF-IDF + Logistic Regression** — a strong, lightweight baseline using unigrams and bigrams.
+1. **TF-IDF + Logistic Regression** — a lightweight baseline using unigrams and bigrams.
 2. **TextCNN (PyTorch)** — a trainable embedding layer followed by parallel 1D convolutions with different kernel widths, global max pooling, and a binary classification head.
 
-The aim is not to assume that the neural model wins. The validation metrics should determine which approach works better on this dataset.
+The aim is to compare the models fairly, not to assume that the neural model will perform better.
 
 ## Repository structure
 
 ```text
 .
+├── .gitignore
+├── LICENSE
+├── README.md
 ├── data/
-│   ├── raw/                  # Place train.csv and test.csv here (not committed)
-│   └── reference/
-│       └── sample_submission.csv  # Optional Kaggle submission template
+│   ├── raw/                    # Local Kaggle train.csv and test.csv (not tracked)
+│   └── reference/              # Optional local sample_submission.csv (not tracked)
 ├── notebooks/
 │   └── 01_exploratory_analysis.ipynb
-├── artifacts/                # Generated models, metrics, and plots (not committed)
+├── artifacts/                  # Generated models, metrics, and plots (not tracked)
 ├── src/disaster_tweets/
-│   ├── data.py               # CSV validation and stratified splitting
-│   ├── metrics.py            # Classification metrics
-│   ├── model.py              # TextCNN architecture
-│   ├── predict.py            # Single-text and CSV inference
-│   ├── text.py               # Tweet-aware normalization/tokenization
-│   ├── train.py              # Baseline + neural training workflow
-│   ├── training.py           # PyTorch training loop and early stopping
-│   └── vocabulary.py         # Training-only vocabulary and encoding
+│   ├── data.py                 # CSV validation and leakage-aware splitting
+│   ├── metrics.py              # Binary classification metrics
+│   ├── model.py                # TextCNN architecture
+│   ├── predict.py              # Single-text and CSV inference
+│   ├── text.py                 # Tweet-aware normalization and tokenization
+│   ├── train.py                # Baseline and neural training workflow
+│   ├── training.py             # PyTorch training loop and early stopping
+│   └── vocabulary.py           # Training-only vocabulary and encoding
 ├── tests/
 └── pyproject.toml
 ```
@@ -45,14 +42,17 @@ The aim is not to assume that the neural model wins. The validation metrics shou
 
 1. Download the competition files from the [Kaggle dataset page](https://www.kaggle.com/competitions/nlp-getting-started/data).
 2. Accept the competition rules on Kaggle, if prompted.
-3. Put the files in `data/raw/`:
+3. Place the files locally:
 
 ```text
 data/raw/train.csv
 data/raw/test.csv
+data/reference/sample_submission.csv   # Optional; only needed as a reference template
 ```
 
-The training file must contain `id`, `text`, and `target`. The test file must contain `id` and `text`. The included `data/reference/sample_submission.csv` is an optional copy of the submission template you supplied; it is not training data and is not required by the training or prediction commands. The competition dataset itself is not redistributed in this repository; follow Kaggle's terms when downloading and using it.
+The training file must contain `id`, `text`, and `target`. The test file must contain `id` and `text`. The optional submission template has `id` and `target` columns.
+
+**Dataset and privacy note:** Kaggle competition CSVs are deliberately excluded from this repository. Tweet text can contain user-generated content and may include incidental personal or contact information. Keep the downloaded files local; do not commit the CSVs, downloaded archives, or derived copies. Follow the competition's terms when downloading and using the data.
 
 ## Installation
 
@@ -66,11 +66,11 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-For a CPU-only PyTorch installation, use the command recommended by the [official PyTorch installation selector](https://pytorch.org/get-started/locally/) for your operating system. The default training device in this project is CPU.
+For a CPU-only PyTorch installation, use the command recommended by the [official PyTorch installation selector](https://pytorch.org/get-started/locally/) for your operating system. The default training device is CPU.
 
 ## Train and compare the models
 
-From the repository root:
+Run from this project directory (`04-text-cnn/`):
 
 ```bash
 python -m disaster_tweets.train --data data/raw/train.csv
@@ -81,23 +81,23 @@ Useful options:
 ```bash
 python -m disaster_tweets.train --help
 python -m disaster_tweets.train --epochs 5 --batch-size 64 --max-length 64 --seed 42
-python -m disaster_tweets.train --device cuda  # only with a compatible CUDA-enabled PyTorch install
+python -m disaster_tweets.train --device cuda  # Requires a compatible CUDA-enabled PyTorch install
 ```
 
 The workflow:
 
 - validates the input file and target labels;
-- creates an approximately 80/20 stratified, group-aware train/validation split (identical normalized tweets stay in one partition);
-- fits the TF-IDF vocabulary and the neural vocabulary using **training texts only**;
+- creates an approximately 80/20 stratified, group-aware train/validation split (normalized duplicate tweets stay in one partition);
+- fits TF-IDF and neural vocabularies on **training texts only**;
 - trains both approaches and applies early stopping to TextCNN using validation F1;
-- reports accuracy, precision, recall, F1, and ROC-AUC at a fixed probability threshold of 0.50;
+- reports Accuracy, Precision, Recall, F1, and ROC-AUC at a probability threshold of 0.50;
 - saves models, metrics, and plots under `artifacts/`.
 
-Generated files include `metrics.json`, `model_comparison.png`, `textcnn_training_history.png`, `tfidf_logreg.joblib`, and the TextCNN state/configuration/vocabulary files. Results are generated locally and are intentionally not fabricated or prefilled in this README.
+Generated files include `metrics.json`, `training_history.json`, `model_comparison.png`, `textcnn_training_history.png`, `tfidf_logreg.joblib`, and the TextCNN state/configuration/vocabulary files. They are generated locally and are not committed.
 
 ## Inference
 
-Classify one example with the trained TextCNN:
+Classify one example with TextCNN:
 
 ```bash
 python -m disaster_tweets.predict \
@@ -106,7 +106,7 @@ python -m disaster_tweets.predict \
   --artifacts-dir artifacts
 ```
 
-Create a Kaggle-format submission file from `test.csv`:
+Create a Kaggle-format submission from `test.csv`:
 
 ```bash
 python -m disaster_tweets.predict \
@@ -115,7 +115,7 @@ python -m disaster_tweets.predict \
   --output artifacts/submission.csv
 ```
 
-Use `--model baseline` to run the TF-IDF model instead. The submission contains the required `id` and `target` columns.
+Use `--model baseline` to run the TF-IDF model instead. The generated submission contains `id` and `target` columns.
 
 ## Exploratory analysis
 
@@ -123,11 +123,17 @@ Open `notebooks/01_exploratory_analysis.ipynb` to inspect class balance, text le
 
 ## Evaluation notes and limitations
 
-- The validation split is stratified and deterministic (`seed=42` by default).
+- The validation split is deterministic (`seed=42` by default), stratified, and group-aware.
 - The official competition test labels are not available, so local validation metrics are not Kaggle leaderboard scores.
-- The neural vocabulary is fit on training text only; validation data is not used to create the vocabulary.
+- The neural vocabulary is fitted on training text only; validation data is not used to build the vocabulary.
 - URLs and user mentions are normalized, while hashtags and most punctuation are preserved.
-- A model prediction is not emergency intelligence. It can misread figurative language, sarcasm, location context, and breaking-news terminology. Do not use it as the sole basis for real-world decisions.
+- A model prediction is not emergency intelligence. The classifier can misread figurative language, sarcasm, location context, and breaking-news terminology. Do not use it as the sole basis for real-world decisions.
+
+## Security notes
+
+- Do not commit API keys, passwords, access tokens, private keys, personal contact details, raw tweet CSVs, model weights, or generated artifacts.
+- Only load model files that you generated or obtained from a trusted source. In particular, `joblib.load()` deserializes Python objects and must not be used with untrusted files.
+- The TextCNN checkpoint is loaded with PyTorch's `weights_only=True` option.
 
 ## Tests
 
@@ -137,8 +143,8 @@ pytest -q
 
 ## Learning reference and attribution
 
-The task and learning progression were inspired by the NLP material in [aaghamohammadi/deep-learning-youtube](https://github.com/aaghamohammadi/deep-learning-youtube), especially its tokenization, embedding, and NLP project notebooks (`041`–`043`). This repository is an independent implementation: it does not copy the source notebook's code. The original course repository remains the reference for the lesson; the implementation, experiment structure, CLI, tests, and documentation here are separate work.
+The task and learning progression were inspired by the NLP material in [aaghamohammadi/deep-learning-youtube](https://github.com/aaghamohammadi/deep-learning-youtube), especially its tokenization, embedding, and NLP project notebooks (`041`–`043`). This repository is an independent implementation: the model code, experiment structure, command-line interface, tests, and documentation are separate work.
 
-## License
+## Licence
 
-The original code in this repository is released under the MIT License. The Kaggle dataset is not included and remains subject to its source terms.
+The project code is released under the MIT License in `LICENSE`. The Kaggle dataset is not included and remains subject to its own source terms.

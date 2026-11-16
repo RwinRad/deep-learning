@@ -1,0 +1,38 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments and packaging
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Kaggle data: keep all downloaded CSVs and archives local
+data/raw/*.csv
+data/raw/*.zip
+data/reference/*.csv
+
+# Generated model artifacts and experiment outputs
+artifacts/*
+!artifacts/.gitkeep
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/

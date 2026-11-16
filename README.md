@@ -1,49 +1,85 @@
-# 🧠 Deep Learning Portfolio & Experiments
+# Deep Learning Portfolio & Experiments
 
-Welcome to my Deep Learning repository! This repository showcases practical implementations of Computer Vision and Neural Network architectures built with **TensorFlow** and **Keras**. 
+A collection of hands-on projects exploring neural networks and deep learning, from fully connected models and computer-vision CNNs to text classification. The repository uses **TensorFlow/Keras**, **PyTorch**, and **scikit-learn** where each project benefits from them.
 
-The goal of this project is to explore, compare, and demonstrate fundamental concepts in deep learning—ranging from basic Multi-Layer Perceptrons (MLP) to Convolutional Neural Networks (CNN).
+The goal is to document practical implementations, compare modelling choices, and build a clear progression through core deep-learning concepts.
 
----
+## Projects
 
-## 📑 Projects Overview
+| # | Project | Dataset | Main approach | What it covers |
+|---|---|---|---|---|
+| 01 | [Handwritten Digit Recognition](./01-mnist-classification) | MNIST | MLP (4 hidden layers) | Dense layers, ReLU, multiclass classification |
+| 02 | [Image Classification with MLP](./02-cifar10-mlp) | CIFAR-10 | Fully connected network | RGB image classification with flattened inputs |
+| 03 | [Image Classification with CNN](./03-cifar10-cnn) | CIFAR-10 | CNN (Conv2D + MaxPooling) | Spatial feature extraction with 2D convolutions |
+| 04 | [Disaster Tweet Classification](./04-text-cnn) | Kaggle NLP with Disaster Tweets | TF-IDF + Logistic Regression; PyTorch TextCNN | Tokenization, vocabulary, embeddings, 1D convolutions, model evaluation |
 
-| # | Project Name | Dataset | Architecture | Key Characteristics | Link |
-|---|--------------|---------|--------------|---------------------|------|
-| 01 | **Handwritten Digit Recognition** | MNIST | MLP (4 Hidden Layers) | Dense layers with ReLU, 97.10% Test Accuracy | [View Project](./01-mnist-classification) |
-| 02 | **Image Classification (MLP)** | CIFAR-10 | MLP (3 Hidden Layers) | Fully connected baseline on RGB images | [View Project](./02-cifar10-mlp) |
-| 03 | **Image Classification (CNN)** | CIFAR-10 | CNN (Conv2D + MaxPool) | Feature extraction via 2D Convolutions & Pooling | [View Project](./03-cifar10-cnn) |
+## Project notes
 
----
+### MNIST and CIFAR-10
 
-## 📊 Key Insights & Architecture Comparison
+The first three projects explore neural-network foundations and image classification:
 
-### MNIST vs CIFAR-10 Complexity
-- **MNIST:** Simple grayscale images (28x28x1). Fully Connected / MLP networks achieve high accuracy (>97%) with minimal training effort.
-- **CIFAR-10:** Complex color images (32x32x3). Multi-Layer Perceptrons struggle to capture spatial hierarchies and spatial correlations in color images, leading to lower accuracy and potential overfitting.
+- **MNIST:** a compact grayscale digit-classification task that is suitable for experimenting with fully connected networks.
+- **CIFAR-10 with MLP:** treats each image as a flattened feature vector.
+- **CIFAR-10 with CNN:** uses local receptive fields and shared convolutional weights to preserve spatial structure.
 
-### MLP vs CNN on CIFAR-10
-- **Multi-Layer Perceptron (MLP):** Treats 3D images as flat 1D vectors (3072 features), ignoring local pixel spatial structures.
-- **Convolutional Neural Network (CNN):** Uses weight sharing and localized kernels (`Conv2D` + `MaxPooling2D`) to preserve spatial context, achieving significantly better performance on complex visual data.
+### NLP: TF-IDF baseline vs. TextCNN
 
----
+Project 04 applies a similar experimental mindset to short social-media text. It compares a classical **TF-IDF + Logistic Regression** baseline with a compact **TextCNN** implemented in PyTorch. The neural model uses a trainable embedding layer, parallel 1D convolutions with multiple kernel widths, global max pooling, and a binary classification head.
 
-## 📂 Repository Structure
+The experiment uses a deterministic, stratified, group-aware validation split so normalized duplicate tweets are kept in the same partition. Vocabularies and vectorizers are fitted on training text only. The project reports validation metrics rather than claiming an unmeasured leaderboard score.
+
+See the [Project 04 README](./04-text-cnn/README.md) for setup, training, inference, and evaluation instructions.
+
+## Repository structure
 
 ```text
-deep-learning-projects/
-│
-├── README.md                      # Main repository documentation
-│
-├── 01-mnist-classification/       # Digit classification using MLP
+deep-learning/
+├── README.md
+├── 01-mnist-classification/
+│   ├── README.md
 │   ├── mnist_classifier.py
-│   ├── requirements.txt
-│   └── README.md
-│
-├── 02-cifar10-mlp/                # CIFAR-10 image classification using MLP
-│   ├── cifar10_mlp.py
-│   └── README.md
-│
-└── 03-cifar10-cnn/                # CIFAR-10 image classification using CNN
-    ├── cifar10_cnn.py
-    └── README.md
+│   └── requirements.txt
+├── 02-cifar10-mlp/
+│   ├── README.md
+│   └── cifar10_mlp.py
+├── 03-cifar10-cnn/
+│   ├── README.md
+│   └── cifar10_cnn.py
+└── 04-text-cnn/
+    ├── README.md
+    ├── LICENSE
+    ├── pyproject.toml
+    ├── requirements.txt
+    ├── .gitignore
+    ├── data/
+    │   ├── raw/                 # Download Kaggle CSV files locally; do not commit them
+    │   └── reference/           # Optional local submission template
+    ├── notebooks/
+    │   └── 01_exploratory_analysis.ipynb
+    ├── src/disaster_tweets/
+    │   ├── data.py
+    │   ├── metrics.py
+    │   ├── model.py
+    │   ├── predict.py
+    │   ├── text.py
+    │   ├── train.py
+    │   ├── training.py
+    │   └── vocabulary.py
+    ├── tests/
+    └── artifacts/               # Generated locally; not committed
+```
+
+## General notes
+
+- Each project has its own README and dependency instructions.
+- Dataset files, trained weights, generated metrics, caches, and local environment files should stay out of version control unless a project's data licence explicitly permits redistribution.
+- Project-specific results should be generated by running the code. No benchmark values are claimed unless they are documented with the corresponding evaluation setup.
+
+## Learning references
+
+Some exercises and project ideas are informed by courses and learning materials. Where relevant, individual project READMEs identify the source material and distinguish it from the independent implementation.
+
+## Licence
+
+See the licence included in each project where applicable. Dataset terms remain separate from the code licence.
